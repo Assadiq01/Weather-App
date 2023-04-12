@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide|Sofia|Trirong">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato">
+                    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css">
+                    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="container top">
+            <h1>Weather App</h1>
+            <form action="" onsubmit="return false">
+                <input type="text" class="search" placeholder="Search by city name">
+                <button type="submit" class="btn">Submit</button>
+                <p class="error"></p>
+            </form>
+            <section>
+                <div class="container">
+                    <div class="icon">
+                        <img src="" alt="" class="weather-icon">
+                    </div>
+                    <div class="location">
+                        <div class="city">Kano, NG</div>
+                        <div class="date">Thursday, Dec 26 2020</div>
+                    </div>
+                    <div class="current">
+                        <div class="temp">Temp: 25 <span>°C</span></div>
+                        <div class="weather">Weather: clear sky</div>
+                        <div class="temp-range">Temp Range: 15°C / 15°C</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+
+</body>
+
+
+<script>
+
+const api = {
+    key: "3be89b909d5c1556a6ba55d2832ab842",
+    base: "https://api.openweathermap.org/data/2.5/"
+}
+
+const search = document.querySelector(".search");
+const btn = document.querySelector(".btn");
+btn.addEventListener("click", getInput);
+
+function getInput (event) {
+    event.preventDefault();
+    if (event.type == "click") {
+        getData(search.value);
+        console.log(search.value);
+    }
+}
+
+function getData () {
+    fetch(`${api.base}weather?q=${search.value}&units=metric&appid=${api.key}`)
+        .then(response => {
+            return response.json();
+        }).then(displayData);
+        
+}
+
+function displayData (response) {
+    // console.log(response);
+    if (response.cod === "404") {
+        const error = document.querySelector(".error");
+        error.textContent = "Please enter a valid city";
+        search.value = "";
+    } else {
+        const city = document.querySelector(".city");
+        city.innerText = `${response.name}, ${response.sys.country}`;
+
+        const today = new Date();
+        const date = document.querySelector(".date");
+        date.innerText = dateFunction(today);
+
+        const temp = document.querySelector(".temp");
+        temp.innerHTML = `Temp: ${Math.round(response.main.temp)} <span>°C</span>`;
+
+        const weather = document.querySelector(".weather");
+        weather.innerText = `Weather: ${response.weather[0].main}`;
+
+        const tempRange = document.querySelector(".temp-range");
+        tempRange.innerText = `Temp Range: ${Math.round(response.main.temp_min)}°C / ${Math.round(response.main.temp_max)}°C`;
+
+        const weatherIcon = document.querySelector(".weather-icon");
+        const iconURL = "http://openweathermap.org/img/w/";
+        weatherIcon.src = iconURL + response.weather[0].icon + ".png";
+
+        search.value = "";
+    }
+}
+
+function dateFunction (d) {
+    let months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    let day = days[d.getDay()];
+    let date = d.getDate();
+    let month = months[d.getMonth()];
+    let year = d.getFullYear();
+
+    return `${day}, ${date} ${month} ${year}`;
+}
+</script>
+
+</html>
